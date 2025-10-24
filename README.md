@@ -1,125 +1,93 @@
-#Product-Association-Algorithim-The-sparse-Matrix-approach.
-
-🧠 Product Association Algorithm — The Sparse Matrix Approach
-
+🧩 Product Association Algorithm — Sparse Matrix Approach
 🔍 Overview
 
-This project implements a product association discovery system for retail data, designed to find items that are frequently bought together (e.g., bread + butter, tea + milk).
-It is built with:
+This project implements a Product Association Algorithm designed to identify products frequently bought together — a critical capability for retail recommendation systems and basket analysis.
 
-Python (Pandas, SciPy, Dask) for large-scale data analysis
+Unlike traditional association rule mining methods (e.g., Apriori or FP-Growth), this approach leverages Sparse Matrices to efficiently handle large, high-dimensional retail datasets where most product combinations do not co-occur.
 
-FastAPI for a lightweight backend API
+⚙️ Tech Stack
 
-Streamlit for an interactive user interface
+Python
 
-The goal is to help retail teams identify cross-selling opportunities, ensure co-purchased items are in stock during promotions, and support data-driven merchandising decisions.
+FastAPI → Backend API for running model inference and serving association results
 
-⚙️ The Sparse Matrix + Cosine Similarity Method
+Streamlit → Frontend UI for visualizing insights interactively
 
-This method represents the relationship between transactions and products as a large, sparse matrix:
+Pandas / Scikit-learn / Scipy → For data preprocessing, model building, and sparse computations
 
-	Product A	Product B	Product C	...
-Transaction 1	1	1	0	...
-Transaction 2	0	1	1	...
-Transaction 3	1	0	0	...
+Render → For cloud deployment (CI/CD setup and live hosting)
 
-Each row corresponds to a transaction, and each column to a product (SKU).
-A 1 indicates the product was bought in that transaction.
+🚀 Project Structure
+Sparse-Matrix-Model/
+│
+├── api/                   # FastAPI backend service
+│   ├── main.py            # API entry point
+│   ├── requirements.txt   # Backend dependencies
+│   └── ...                
+│
+├── streamlit_app/         # Streamlit frontend UI
+│   ├── app.py             # Main Streamlit app file
+│   ├── requirements.txt   # Frontend dependencies
+│   └── ...
+│
+├── data/                  # (local use only, ignored in git)
+├── requirements.txt        # Root dependencies file
+├── .gitignore              # Ensures data folder and venv aren’t tracked
+└── README.md               # This file
 
-Then we compute cosine similarity between product vectors to quantify how strongly two products are bought together:
+🧮 Why the Sparse Matrix Approach?
+Method	Description	Pros	Cons
+Apriori	Generates association rules by iteratively expanding frequent itemsets.	Easy to interpret, well-known	Computationally expensive for large datasets.
+FP-Growth	Compresses transactions into a prefix tree (FP-tree) and mines it recursively.	Faster than Apriori, no candidate generation	Still memory-heavy for huge item catalogs.
+Sparse Matrix	Represents user–product relationships as a high-dimensional, memory-efficient sparse matrix and uses similarity metrics (e.g., cosine similarity).	Scalable, memory efficient, integrates well with ML models	Requires linear algebra knowledge; less intuitive than rule-based methods.
+🧠 How It Works
 
-similarity
-(
-𝐴
-,
-𝐵
-)
-=
-𝐴
-⋅
-𝐵
-∣
-∣
-𝐴
-∣
-∣
- 
-∣
-∣
-𝐵
-∣
-∣
-similarity(A,B)=
-∣∣A∣∣∣∣B∣∣
-A⋅B
-	​
+Transactional data is preprocessed into a user–product matrix.
 
+The matrix is converted into a sparse representation (e.g., CSR format).
 
-A high similarity score means items frequently co-occur in the same baskets.
+Using cosine similarity, the algorithm computes product affinities efficiently.
 
-Because this matrix is mostly zeros (most transactions include a few of 20,000+ SKUs), we use sparse matrix representations for efficiency — enabling this to scale to millions of transactions.
+Top-N product associations are returned via a FastAPI endpoint.
 
-⚡ Why This Approach?
-✅ Strengths
+The Streamlit UI consumes the API and displays association results interactively.
 
-Scalable: Works efficiently with millions of transactions using sparse matrix math.
+🌐 Deployment (CI/CD on Render)
 
-Interpretable: Similarity scores are easy to understand and visualize (e.g., “Customers who bought X also buy Y”).
+This project was deployed on Render using two connected services:
 
-Flexible: Works with any transactional structure (TransactionId, ItemNo, etc.) — no need for binary encoding or frequent itemset generation.
+FastAPI backend – serves model results via REST API
 
-Fast: No heavy combinatorial search like Apriori; uses efficient linear algebra operations instead.
+Streamlit frontend – consumes the API and provides the UI
 
-⚠️ Limitations
+A basic CI/CD pipeline was configured through Render, automatically redeploying both services whenever changes are pushed to GitHub.
 
-Only captures pairwise relationships (not full itemsets).
+This setup was implemented to test and practice deployment and CI/CD integration skills on a real-world data application.
 
-Doesn’t consider sequence or context (e.g., time, store layout).
+🧰 Local Setup
+# 1️⃣ Clone repo
+git clone git@github.com:Mbuguamaureen01/Product-Association-Algorithim-The-sparse-Matrix-approach.git
+cd Product-Association-Algorithim-The-sparse-Matrix-approach
 
-🔬 Comparison with Other Methods
-Method	How It Works	Pros	Cons	Best For
-Apriori / FP-Growth	Finds frequent itemsets and association rules via support, confidence, lift.	Classical, interpretable.	Slow for large SKUs or millions of transactions; hard to scale.	Small to mid-size datasets.
-Sparse Matrix + Cosine Similarity (This)	Measures co-occurrence via vector similarity.	Scalable, simple, fast, easy to visualize.	Captures only pairwise relations.	Large-scale retail data.
-Neural Embedding (Word2Vec-like)	Learns vector representations of products by treating transactions as “sentences.”	Captures complex relations (“people who buy A also like B or C”).	Requires large data and training resources. Less transparent.	Enterprise setups (Amazon-style).
-🧩 Architecture Overview
+# 2️⃣ Create and activate virtual environment
+python -m venv .venv
+source .venv/bin/activate  # or .venv\Scripts\activate on Windows
 
-1. Data Layer:
-Raw POS or ERP exports → cleaned via Pandas/Dask → transaction-product sparse matrix.
+# 3️⃣ Install dependencies
+pip install -r requirements.txt
 
-2. Analysis Layer:
-Sparse matrix similarity computation → product association scores → stored or cached for querying.
+# 4️⃣ Run backend
+cd api
+uvicorn main:app --reload
 
-3. API Layer (FastAPI):
-Provides endpoints like:
+# 5️⃣ Run frontend
+cd ../streamlit_app
+streamlit run app.py
 
-GET /recommend/{item_id}
+🧩 Future Improvements
 
+Integrate product metadata (price, category, seasonality) for contextual recommendations
 
-Returns top N co-purchased items for any SKU.
+Extend to hybrid recommendation systems (Matrix Factorization + Sparse Associations)
 
-4. UI Layer (Streamlit):
-Interactive web dashboard for analysts and category managers to:
-
-Explore product associations visually
-
-Filter by store, date, or product category
-
-Generate campaign insights
-
-💡 Example Use Case
-
-When running a promotion on “Bread”, the system identifies:
-
-Butter (0.86 similarity)
-
-Jam (0.74)
-
-Tea Leaves (0.61)
-
-So the retailer ensures those items are stocked and displayed together to maximize sales lift.
-
-🚀 Why It Matters
-
-This approach brings Amazon-like “Frequently Bought Together” intelligence to any retail business —
-without the need for deep learning infrastructure or expensive tools.
+Add caching and batch processing for real-time deployment
