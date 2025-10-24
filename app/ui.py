@@ -2,7 +2,8 @@ import streamlit as st
 import requests
 import pandas as pd
 
-API_URL = "http://127.0.0.1:8000"
+API_URL = "API_URL = "https://sparse-api.onrender.com"
+
 
 st.title("Retail Co-Purchase (Sparse Matrix Model)")
 st.write("Discover which items are frequently bought together using item similarity.")

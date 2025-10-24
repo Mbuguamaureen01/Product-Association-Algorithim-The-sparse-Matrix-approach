@@ -1,5 +1,7 @@
--Product-Association-Algorithim-The-sparse-Matrix-approach
+#Product-Association-Algorithim-The-sparse-Matrix-approach.
+
 🧠 Product Association Algorithm — The Sparse Matrix Approach
+
 🔍 Overview
 
 This project implements a product association discovery system for retail data, designed to find items that are frequently bought together (e.g., bread + butter, tea + milk).
