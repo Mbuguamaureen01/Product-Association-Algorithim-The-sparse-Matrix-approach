@@ -1,0 +1,18 @@
+pandas
+numpy
+scipy
+scikit-learn
+matplotlib
+seaborn
+tqdm
+fastapi
+uvicorn
+streamlit
+requests
+
+# For larger-than-memory processing
+dask[dataframe]
+# For visualizing networks of products
+networkx
+# For Excel inputs
+openpyxl
